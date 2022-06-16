@@ -81,5 +81,10 @@ async def message_handler(message: Message):
                 await bot.send_video(CHANNEL_ID, message.photo[-1].file_id, caption=caption)
 
 
+@dp.message_handler(content_types=[ContentType.ANY])
+async def useless_message_handler(message: Message):
+    await message.answer(Answers.NO_INTEREST.value)
+
+
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
