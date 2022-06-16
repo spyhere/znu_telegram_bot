@@ -77,8 +77,10 @@ async def message_handler(message: Message):
         match message.content_type:
             case 'photo':
                 await bot.send_photo(CHANNEL_ID, message.photo[-1].file_id, caption)
+                await message.answer(Answers.SUBMITTED.value)
             case 'video':
                 await bot.send_video(CHANNEL_ID, message.video.file_id, caption=caption)
+                await message.answer(Answers.SUBMITTED.value)
 
 
 @dp.message_handler(content_types=[ContentType.ANY])
