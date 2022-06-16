@@ -63,7 +63,7 @@ async def message_handler(message: Message):
             case 'photo':
                 media[user_id].attach_photo(message.photo[-1].file_id, caption)
             case 'video':
-                media[user_id].attach_video(message.video.file_id, caption)
+                media[user_id].attach_video(message.video.file_id, caption=caption)
 
         await asyncio.sleep(0.5)
         if media[user_id].media:
@@ -78,7 +78,7 @@ async def message_handler(message: Message):
             case 'photo':
                 await bot.send_photo(CHANNEL_ID, message.photo[-1].file_id, caption)
             case 'video':
-                await bot.send_video(CHANNEL_ID, message.photo[-1].file_id, caption=caption)
+                await bot.send_video(CHANNEL_ID, message.video.file_id, caption=caption)
 
 
 @dp.message_handler(content_types=[ContentType.ANY])
