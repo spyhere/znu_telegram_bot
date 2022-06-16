@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from answers import Answers
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType, Message
@@ -18,12 +19,12 @@ logger.setLevel(logging.DEBUG)
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: Message):
-    await message.answer("Привет!\nОтправь мне свои видеофайлы.\nМы тебе перезвоним!")
+    await message.answer(Answers.START.value)
 
 
 @dp.message_handler(commands=['help'])
 async def send_help(message: Message):
-    await message.answer("Сейчас поможем")
+    await message.answer(Answers.HELP.value)
 
 
 media = {}
@@ -41,14 +42,14 @@ async def message_handler(message: Message):
         return
 
     if message.content_type == "text":
-        await message.answer("Ваше сообщение также должно содержать видео и/или фото")
+        await message.answer(Answers.NO_ATTACHMENTS.value)
         return
 
     no_caption_single_file = message.caption is None and message.media_group_id is None
     no_caption_media_group = message.caption is None and not media.get(user_id)
     if no_caption_single_file or no_caption_media_group:
         break_handler[user_id] = None
-        await message.answer("Отпрявляемые материалы должны быть подписаны (автор, произведение)")
+        await message.answer(Answers.NO_CAPTION.value)
         del break_handler[user_id]
         return
 
@@ -69,7 +70,7 @@ async def message_handler(message: Message):
             media_group = media[user_id]
             media[user_id] = types.MediaGroup()
             await bot.send_media_group(CHANNEL_ID, media_group)
-            await message.answer("Спасибо, файлы получены. Удачи!")
+            await message.answer(Answers.SUBMITTED.value)
             del media[user_id]
             return
     else:
