@@ -38,6 +38,8 @@ async def message_handler(message: Message):
     global media
 
     user_id = message.from_user.id
+
+    # Messages from media group has no caption - skip
     if user_id in break_handler:
         return
 
@@ -48,6 +50,7 @@ async def message_handler(message: Message):
     no_caption_single_file = message.caption is None and message.media_group_id is None
     no_caption_media_group = message.caption is None and not media.get(user_id)
     if no_caption_single_file or no_caption_media_group:
+        # Intent to skip whole media group
         break_handler[user_id] = None
         await message.answer(Answers.NO_CAPTION.value)
         del break_handler[user_id]
