@@ -8,7 +8,7 @@ API_TOKEN = '5581388532:AAH7nk3mp5QBCwwXz2zubxXNfcDqH9rxROM'
 CHANNEL_ID = '-1001630316640'
 
 # Initialize bot and dispatcher
-bot = Bot(token=API_TOKEN)
+bot = Bot(API_TOKEN)
 dp = Dispatcher(bot)
 
 logging.basicConfig(level=logging.INFO)
