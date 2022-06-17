@@ -31,8 +31,7 @@ media = {}
 break_handler = {}
 
 
-@dp.message_handler(
-    content_types=[ContentType.VIDEO, ContentType.PHOTO, ContentType.TEXT])
+@dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT])
 async def message_handler(message: Message):
     global break_handler
     global media
@@ -62,11 +61,7 @@ async def message_handler(message: Message):
         if not media.get(user_id):
             media[user_id] = types.MediaGroup()
 
-        match message.content_type:
-            case 'photo':
-                media[user_id].attach_photo(message.photo[-1].file_id, caption)
-            case 'video':
-                media[user_id].attach_video(message.video.file_id, caption=caption)
+        media[user_id].attach_video(message.video.file_id, caption=caption)
 
         await asyncio.sleep(0.5)
         if media[user_id].media:
@@ -77,11 +72,7 @@ async def message_handler(message: Message):
             del media[user_id]
             return
     else:
-        match message.content_type:
-            case 'photo':
-                await bot.send_photo(CHANNEL_ID, message.photo[-1].file_id, caption)
-            case 'video':
-                await bot.send_video(CHANNEL_ID, message.video.file_id, caption=caption)
+        await bot.send_video(CHANNEL_ID, message.video.file_id, caption=caption)
         await message.answer(Answers.SUBMITTED.value)
 
 
