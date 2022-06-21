@@ -102,7 +102,7 @@ async def motivation_letter_handler(message: Message):
 
     caption = f"@{message.from_user.username}\n\n{file_name}"
     await bot.send_document(CHANNEL_ID, message.document.file_id, caption=caption)
-    await message.answer(Answers.SUBMITTED.value, 'HTML')
+    await message.answer(Answers.LETTER_SUBMITTED.value, 'HTML')
 
 
 @dp.message_handler(content_types=[ContentType.ANY])

@@ -15,6 +15,7 @@ class Answers(Enum):
                           "Формати, які ми підтримуємо: " + \
                           "<code>pdf</code>, <code>txt</code>, <code>doc</code>, <code>docm</code>, <code>docx</code>, " + \
                           "<code>dot</code>, <code>dotm</code>, <code>dotx</code>, <code>odt</code>, <code>rtf</code>"
+    LETTER_SUBMITTED = "Дякуємо, ми отримали Ваш мотиваційний лист!"
     NO_ATTACHMENTS = "Ви повинні додати <b>відео файл(и)</b> з підписом(<b>виконавець</b>, <b>автор</b>, <b>назва твору</b>)."
     NO_CAPTION = "Кожен відофайл повинен бути підписаний: <b>Прізвище</b>, <b>ім'я</b>, <b>по батькові</b>"
     START = "<b>01.07.22</b> та <b>11.07.22</b> - Відбудуться <b>констультації на платформі " + \
