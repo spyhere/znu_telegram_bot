@@ -26,6 +26,11 @@ async def send_welcome(message: Message):
     await message.answer(Answers.START.value, 'HTML')
 
 
+@dp.message_handler(commands=['schedule'])
+async def schedule_handler(message: Message):
+    await message.answer(Answers.SCHEDULE.value, 'HTML')
+
+
 @dp.message_handler(commands=['help'])
 async def send_help(message: Message):
     await message.answer(Answers.HELP.value, 'HTML')
