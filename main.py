@@ -36,6 +36,11 @@ async def apply_handler(message: Message):
     await message.answer(Answers.APPLY.value, 'HTML')
 
 
+@dp.message_handler(commands=['letter'])
+async def letter_instructions_handler(message: Message):
+    await message.answer(Answers.LETTER_INSTRUCTIONS.value, 'HTML')
+
+
 media = {}
 break_handler = {}
 
