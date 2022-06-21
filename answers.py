@@ -17,3 +17,6 @@ class Answers(Enum):
             "<b>18.07</b> - <b>Мотиваційний лист</b>"
     SUBMITTED = "Дякуємо, ми отримали Ваші файл(и)."
     NO_INTEREST = "Ви повинні додати <b>відео файл(и)</b> з підписом(<b>виконавець</b>, <b>автор</b>, <b>назва твору</b>)."
+    WRONG_MIME_TYPE = "<b>Неправильний формат файлу!</b>\nМи підтримуємо такі формати: " + \
+                      "<code>pdf</code>, <code>txt</code>, <code>doc</code>, <code>docm</code>, <code>docx</code>, " + \
+                      "<code>dot</code>, <code>dotm</code>, <code>dotx</code>, <code>odt</code>, <code>rtf</code>"
