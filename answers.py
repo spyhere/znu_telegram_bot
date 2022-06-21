@@ -10,7 +10,6 @@ def env(key):
 
 
 class Answers(Enum):
-    APPLY = f"<a href='{env('APPLICATION_LINK')}'>Подати заявку</a>"
     HELP = "У разі необхідності термінової консультації звертайтесь за телефонами:\n" + \
            f"<code>{env('HELP1_NUM')}</code> (<b>{env('HELP1_NAME')}</b>)\n" + \
            f"<code>{env('HELP2_NUM')}</code> (<b>{env('HELP2_NAME')}</b>)"
