@@ -23,12 +23,12 @@ logger.setLevel(logging.DEBUG)
 
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: Message):
-    await message.answer(Answers.START.value)
+    await message.answer(Answers.START.value, 'HTML')
 
 
 @dp.message_handler(commands=['help'])
 async def send_help(message: Message):
-    await message.answer(Answers.HELP.value)
+    await message.answer(Answers.HELP.value, 'HTML')
 
 
 media = {}
@@ -47,7 +47,7 @@ async def message_handler(message: Message):
         return
 
     if message.content_type == "text":
-        await message.answer(Answers.NO_ATTACHMENTS.value)
+        await message.answer(Answers.NO_ATTACHMENTS.value, 'HTML')
         return
 
     no_caption_single_file = message.caption is None and message.media_group_id is None
@@ -55,7 +55,7 @@ async def message_handler(message: Message):
     if no_caption_single_file or no_caption_media_group:
         # Intent to skip whole media group
         break_handler[user_id] = None
-        await message.answer(Answers.NO_CAPTION.value)
+        await message.answer(Answers.NO_CAPTION.value, 'HTML')
         del break_handler[user_id]
         return
 
@@ -72,17 +72,17 @@ async def message_handler(message: Message):
             media_group = media[user_id]
             media[user_id] = types.MediaGroup()
             await bot.send_media_group(CHANNEL_ID, media_group)
-            await message.answer(Answers.SUBMITTED.value)
+            await message.answer(Answers.SUBMITTED.value, 'HTML')
             del media[user_id]
             return
     else:
         await bot.send_video(CHANNEL_ID, message.video.file_id, caption=caption)
-        await message.answer(Answers.SUBMITTED.value)
+        await message.answer(Answers.SUBMITTED.value, 'HTML')
 
 
 @dp.message_handler(content_types=[ContentType.ANY])
 async def useless_message_handler(message: Message):
-    await message.answer(Answers.NO_INTEREST.value)
+    await message.answer(Answers.NO_INTEREST.value, 'HTML')
 
 
 if __name__ == '__main__':
