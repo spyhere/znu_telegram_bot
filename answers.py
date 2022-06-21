@@ -1,7 +1,12 @@
+import os
+from dotenv import load_dotenv
 from enum import Enum
+
+load_dotenv()
 
 
 class Answers(Enum):
+    APPLY = f"<a href='{os.getenv('APPLICATION_LINK')}'>Подати заявку</a>"
     HELP = "У разі необхідності термінової консультації звертайтесь за телефонами:\n" + \
            "<code>0660501737</code> (<b>Стадніченко Надія Василівна</b>)\n" + \
            "<code>0939894698</code> (<b>Кузьмін Костянтин Сергійович</b>)"
