@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import asyncio
 import logging
 from answers import Answers
@@ -5,8 +7,10 @@ from answers import Answers
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType, Message
 
-API_TOKEN = '5581388532:AAH7nk3mp5QBCwwXz2zubxXNfcDqH9rxROM'
-CHANNEL_ID = '-1001630316640'
+load_dotenv()
+
+API_TOKEN = os.getenv('API_TOKEN')
+CHANNEL_ID = os.getenv('CHANNEL_ID')
 
 # Initialize bot and dispatcher
 bot = Bot(API_TOKEN)
