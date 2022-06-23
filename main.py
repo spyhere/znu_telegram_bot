@@ -1,13 +1,16 @@
 import os
+import logging
+
+from typing import List
+from dotenv import load_dotenv
 
 from aiogram.utils.executor import start_webhook
-from dotenv import load_dotenv
-import asyncio
-import logging
-from answers import Answers
-
 from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import ContentType, Message
+from aiogram_media_group import media_group_handler
+
+from answers import Answers
 
 load_dotenv()
 
@@ -25,7 +28,7 @@ WEBAPP_PORT = 3001
 
 # Initialize bot and dispatcher
 bot = Bot(API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -52,53 +55,37 @@ async def letter_instructions_handler(message: Message):
     await message.answer(Answers.LETTER_INSTRUCTIONS.value, 'HTML')
 
 
-media = {}
-break_handler = {}
-
-
 @dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT])
-async def message_handler(message: Message):
-    global break_handler
-    global media
-
-    user_id = message.from_user.id
-
-    # Messages from media group has no caption - skip
-    if user_id in break_handler:
+@media_group_handler(only_album=False)
+async def message_handler(messages: List[Message]):
+    if messages[0].content_type == "text":
+        await messages[0].answer(Answers.NO_ATTACHMENTS.value, 'HTML')
         return
 
-    if message.content_type == "text":
-        await message.answer(Answers.NO_ATTACHMENTS.value, 'HTML')
+    if messages[0].caption is None:
+        await messages[0].answer(Answers.NO_CAPTION.value, 'HTML')
         return
 
-    no_caption_single_file = message.caption is None and message.media_group_id is None
-    no_caption_media_group = message.caption is None and not media.get(user_id)
-    if no_caption_single_file or no_caption_media_group:
-        # Intent to skip whole media group
-        break_handler[user_id] = None
-        await message.answer(Answers.NO_CAPTION.value, 'HTML')
-        del break_handler[user_id]
-        return
+    caption = f"@{messages[0].from_user.username}\n\n{messages[0].caption}"
 
-    caption = f"@{message.from_user.username}\n\n{message.caption}" if message.caption else None
+    if len(messages) > 1:
+        media_group = types.MediaGroup()
+        for ind, message in enumerate(messages):
 
-    if message.media_group_id:
-        if not media.get(user_id):
-            media[user_id] = types.MediaGroup()
+            if message.content_type != 'video':
+                await message.answer(Answers.NO_INTEREST.value, 'HTML')
+                return
 
-        media[user_id].attach_video(message.video.file_id, caption=caption)
-
-        await asyncio.sleep(0.5)
-        if media[user_id].media:
-            media_group = media[user_id]
-            media[user_id] = types.MediaGroup()
-            await bot.send_media_group(CHANNEL_ID, media_group)
-            await message.answer(Answers.SUBMITTED.value, 'HTML')
-            del media[user_id]
-            return
+            media_group.attach_video(
+                message.video.file_id,
+                caption=(caption if ind == 0 else message.caption),
+                caption_entities=message.caption_entities
+            )
+        await bot.send_media_group(CHANNEL_ID, media_group)
+        await messages[0].answer(Answers.SUBMITTED.value, 'HTML')
     else:
-        await bot.send_video(CHANNEL_ID, message.video.file_id, caption=caption)
-        await message.answer(Answers.SUBMITTED.value, 'HTML')
+        await bot.send_video(CHANNEL_ID, messages[0].video.file_id, caption=caption)
+        await messages[0].answer(Answers.SUBMITTED.value, 'HTML')
 
 
 allowed_mime_types = ['pdf', 'txt', 'doc', 'docm', 'docx', 'dot', 'dotm', 'dotx', 'odt', 'rtf']
@@ -117,8 +104,9 @@ async def motivation_letter_handler(message: Message):
 
 
 @dp.message_handler(content_types=[ContentType.ANY])
-async def useless_message_handler(message: Message):
-    await message.answer(Answers.NO_INTEREST.value, 'HTML')
+@media_group_handler(only_album=False)
+async def useless_message_handler(messages: List[Message]):
+    await messages[0].answer(Answers.NO_INTEREST.value, 'HTML')
 
 
 async def on_startup(db):
