@@ -14,7 +14,7 @@ class Answers(Enum):
            f"<code>{env('HELP1_NUM')}</code> (<b>{env('HELP1_NAME')}</b>)\n" + \
            f"<code>{env('HELP2_NUM')}</code> (<b>{env('HELP2_NAME')}</b>)"
     NO_ATTACHMENTS = "Ви повинні додати <b>відео файл(и)</b> з підписом(<b>виконавець</b>, <b>автор</b>, <b>назва твору</b>)."
-    NO_CAPTION = "Кожен відофайл повинен бути підписаний: <b>Прізвище</b>, <b>ім'я</b>, <b>по батькові</b>"
+    NO_CAPTION = "Кожен відеофайл повинен бути підписаний: <b>Прізвище</b>, <b>ім'я</b>, <b>по батькові</b>"
     SCHEDULE = f"<b>{env('CONSULT_START')}</b> та <b>{env('CONSULT_END')}</b> - Відбудуться <b>констультації на платформі " + \
                f"Zoom</b>(id: <code>{env('ZOOM_ID')}</code>; password: <code>{env('ZOOM_PASS')}</code>)\n\n" + \
                "Для складання іспиту \"Творчий конкурс\" вам потрібно надіслати боту запис виконання:\n" + \
