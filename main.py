@@ -45,6 +45,11 @@ async def schedule_handler(message: Message):
     await message.answer(Answers.SCHEDULE.value, 'HTML')
 
 
+@dp.message_handler(commands=['hint'])
+async def send_hint(message: Message):
+    await message.answer(Answers.HINT.value, 'HTML')
+
+
 @dp.message_handler(commands=['help'])
 async def send_help(message: Message):
     await message.answer(Answers.HELP.value, 'HTML')
