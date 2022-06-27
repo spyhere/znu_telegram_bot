@@ -13,12 +13,6 @@ class Answers(Enum):
     HELP = "У разі необхідності термінової консультації звертайтесь за телефонами:\n" + \
            f"<code>{env('HELP1_NUM')}</code> (<b>{env('HELP1_NAME')}</b>)\n" + \
            f"<code>{env('HELP2_NUM')}</code> (<b>{env('HELP2_NAME')}</b>)"
-    LETTER_INSTRUCTIONS = "Надішліть боту текстовий файл із мотиваційним листом. Будь ласка, назвіть файл у форматі: " + \
-                          "<b>Прізвище, ім'я, по батькові – Мотиваційний лист</b>.\n\n" + \
-                          "Формати, які ми підтримуємо: " + \
-                          "<code>pdf</code>, <code>txt</code>, <code>doc</code>, <code>docm</code>, <code>docx</code>, " + \
-                          "<code>dot</code>, <code>dotm</code>, <code>dotx</code>, <code>odt</code>, <code>rtf</code>"
-    LETTER_SUBMITTED = "Дякуємо, ми отримали Ваш мотиваційний лист!"
     NO_ATTACHMENTS = "Ви повинні додати <b>відео файл(и)</b> з підписом(<b>виконавець</b>, <b>автор</b>, <b>назва твору</b>)."
     NO_CAPTION = "Кожен відофайл повинен бути підписаний: <b>Прізвище</b>, <b>ім'я</b>, <b>по батькові</b>"
     SCHEDULE = f"<b>{env('CONSULT_START')}</b> та <b>{env('CONSULT_END')}</b> - Відбудуться <b>констультації на платформі " + \
@@ -34,6 +28,3 @@ class Answers(Enum):
             "Також хочемо повідомити, що бот має корисне меню в лівому нижньому кутку."
     SUBMITTED = "Дякуємо, ми отримали Ваші файл(и)."
     NO_INTEREST = "Ви повинні додати <b>відео файл(и)</b> з підписом(<b>виконавець</b>, <b>автор</b>, <b>назва твору</b>)."
-    WRONG_MIME_TYPE = "<b>Неправильний формат файлу!</b>\nМи підтримуємо такі формати: " + \
-                      "<code>pdf</code>, <code>txt</code>, <code>doc</code>, <code>docm</code>, <code>docx</code>, " + \
-                      "<code>dot</code>, <code>dotm</code>, <code>dotx</code>, <code>odt</code>, <code>rtf</code>"
