@@ -47,9 +47,13 @@ class AlumniName(StatesGroup):
 
 @dp.message_handler(commands=['start'], state="*")
 async def send_welcome(message: Message):
-    await message.answer(Answers.START.value, 'HTML')
-    await message.answer(Answers.NAME_INPUT.value, 'HTML')
-    await AlumniName.waiting_for_name.set()
+    user_name = r.get(message.from_user.id)
+    if user_name:
+        await message.answer(Answers.NAME_STORED.value % user_name.decode('utf-8') + Answers.START.value, 'HTML')
+        await AlumniName.name_received.set()
+    else:
+        await message.answer(Answers.START.value + Answers.NAME_INPUT.value, 'HTML')
+        await AlumniName.waiting_for_name.set()
 
 
 @dp.message_handler(state=AlumniName.waiting_for_name, content_types=[ContentType.ANY])
@@ -89,7 +93,9 @@ async def message_handler(messages: List[Message]):
         await messages[0].answer(Answers.NO_CAPTION.value, 'HTML')
         return
 
-    caption = f"@{messages[0].from_user.username}\n\n{messages[0].caption}"
+    telegram_name = ("@" + messages[0].from_user.username) if messages[0].from_user.username else "Никнейм не указан"
+    user_name = r.get(messages[0].from_user.id).decode("utf-8")
+    caption = f"{telegram_name}\n{user_name}\n\n{messages[0].caption}"
 
     if len(messages) > 1:
         media_group = types.MediaGroup()
