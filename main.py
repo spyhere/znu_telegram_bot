@@ -147,6 +147,15 @@ async def useless_message_handler(messages: List[Message]):
     await messages[0].answer(Answers.NO_INTEREST.value, 'HTML')
 
 
+@dp.message_handler(content_types=[ContentType.ANY], state='*')
+@media_group_handler(only_album=False)
+async def no_name(messages: List[Message]):
+    await AlumniName.waiting_for_name.set()
+    for message in messages:
+        await message.delete()
+    await messages[0].answer(Answers.NAME_INPUT.value, 'HTML')
+
+
 async def on_startup(db):
     await bot.set_webhook(WEBHOOK_URL)
     r.ping()
