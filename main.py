@@ -43,13 +43,14 @@ logger.setLevel(logging.DEBUG)
 class AlumniName(StatesGroup):
     waiting_for_name = State()
     name_received = State()
+    waiting_name_change = State()
 
 
 @dp.message_handler(commands=['start'], state="*")
 async def send_welcome(message: Message):
     user_name = r.get(message.from_user.id)
     if user_name:
-        await message.answer(Answers.NAME_STORED.value % user_name.decode('utf-8') + Answers.START.value, 'HTML')
+        await message.answer(Answers.NAME_EXISTS.value % user_name.decode('utf-8') + Answers.START.value, 'HTML')
         await AlumniName.name_received.set()
     else:
         await message.answer(Answers.START.value + Answers.NAME_INPUT.value, 'HTML')
@@ -75,6 +76,23 @@ async def schedule_handler(message: Message):
 @dp.message_handler(commands=['hint'], state=AlumniName.name_received)
 async def send_hint(message: Message):
     await message.answer(Answers.HINT.value, 'HTML')
+
+
+@dp.message_handler(commands=['change_name'], state=AlumniName.name_received)
+async def change_name(message: Message):
+    await message.answer(Answers.NAME_EDIT.value, 'HTML')
+    await AlumniName.waiting_name_change.set()
+
+
+@dp.message_handler(state=AlumniName.waiting_name_change, content_types=[ContentType.ANY])
+async def edit_name(message: Message):
+    if message.content_type != "text" or "/" in message.text:
+        await message.answer(Answers.NAME_EDIT.value, 'HTML')
+        return
+    user_name = message.text
+    r.set(message.from_user.id, user_name)
+    await AlumniName.name_received.set()
+    await message.answer(Answers.NAME_CHANGED.value % user_name, 'HTML')
 
 
 @dp.message_handler(commands=['help'], state=AlumniName.name_received)
