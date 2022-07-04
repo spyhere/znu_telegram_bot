@@ -103,6 +103,12 @@ async def send_help(message: Message):
 @dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT], state=AlumniName.name_received)
 @media_group_handler(only_album=False)
 async def message_handler(messages: List[Message]):
+    if r.exists(messages[0].from_user.id) == 0:
+        await AlumniName.waiting_for_name.set()
+        for message in messages:
+            await message.delete()
+        await messages[0].answer(Answers.NAME_INPUT.value, 'HTML')
+        return
     if messages[0].content_type == "text":
         await messages[0].answer(Answers.NO_ATTACHMENTS.value, 'HTML')
         return
