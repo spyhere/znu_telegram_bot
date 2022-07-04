@@ -1,5 +1,6 @@
 import os
 import logging
+import redis
 
 from typing import List
 from dotenv import load_dotenv
@@ -9,6 +10,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import ContentType, Message
 from aiogram_media_group import media_group_handler
+from aiogram.dispatcher.filters.state import State, StatesGroup
 
 from answers import Answers
 
@@ -30,32 +32,53 @@ WEBAPP_PORT = 3001
 bot = Bot(API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
+# DB
+r = redis.Redis()
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-@dp.message_handler(commands=['start'])
+class AlumniName(StatesGroup):
+    waiting_for_name = State()
+    name_received = State()
+
+
+@dp.message_handler(commands=['start'], state="*")
 async def send_welcome(message: Message):
     await message.answer(Answers.START.value, 'HTML')
+    await message.answer(Answers.NAME_INPUT.value, 'HTML')
+    await AlumniName.waiting_for_name.set()
 
 
-@dp.message_handler(commands=['schedule'])
+@dp.message_handler(state=AlumniName.waiting_for_name, content_types=[ContentType.ANY])
+async def get_name(message: Message):
+    if message.content_type != "text" or "/" in message.text:
+        await message.answer(Answers.NAME_INPUT.value, 'HTML')
+        return
+    user_name = message.text
+    r.set(message.from_user.id, user_name)
+    await AlumniName.name_received.set()
+    await message.answer(Answers.NAME_RECEIVED.value % user_name, 'HTML')
+
+
+@dp.message_handler(commands=['schedule'], state=AlumniName.name_received)
 async def schedule_handler(message: Message):
     await message.answer(Answers.SCHEDULE.value, 'HTML')
 
 
-@dp.message_handler(commands=['hint'])
+@dp.message_handler(commands=['hint'], state=AlumniName.name_received)
 async def send_hint(message: Message):
     await message.answer(Answers.HINT.value, 'HTML')
 
 
-@dp.message_handler(commands=['help'])
+@dp.message_handler(commands=['help'], state=AlumniName.name_received)
 async def send_help(message: Message):
     await message.answer(Answers.HELP.value, 'HTML')
 
 
-@dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT])
+@dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT], state=AlumniName.name_received)
 @media_group_handler(only_album=False)
 async def message_handler(messages: List[Message]):
     if messages[0].content_type == "text":
@@ -88,7 +111,7 @@ async def message_handler(messages: List[Message]):
         await messages[0].answer(Answers.SUBMITTED.value, 'HTML')
 
 
-@dp.message_handler(content_types=[ContentType.ANY])
+@dp.message_handler(content_types=[ContentType.ANY], state=AlumniName.name_received)
 @media_group_handler(only_album=False)
 async def useless_message_handler(messages: List[Message]):
     await messages[0].answer(Answers.NO_INTEREST.value, 'HTML')
@@ -96,6 +119,8 @@ async def useless_message_handler(messages: List[Message]):
 
 async def on_startup(db):
     await bot.set_webhook(WEBHOOK_URL)
+    r.ping()
+    logging.info("Redis has been started")
 
 
 async def on_shutdown(db):
