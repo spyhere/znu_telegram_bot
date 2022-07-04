@@ -103,7 +103,8 @@ async def send_help(message: Message):
 @dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT], state=AlumniName.name_received)
 @media_group_handler(only_album=False)
 async def message_handler(messages: List[Message]):
-    if r.exists(messages[0].from_user.id) == 0:
+    name = r.get(messages[0].from_user.id)
+    if not name:
         await AlumniName.waiting_for_name.set()
         for message in messages:
             await message.delete()
@@ -118,7 +119,7 @@ async def message_handler(messages: List[Message]):
         return
 
     telegram_name = ("@" + messages[0].from_user.username) if messages[0].from_user.username else "Никнейм не указан"
-    user_name = r.get(messages[0].from_user.id).decode("utf-8")
+    user_name = name.decode("utf-8")
     caption = f"{telegram_name}\n{user_name}\n\n{messages[0].caption}"
 
     if len(messages) > 1:
