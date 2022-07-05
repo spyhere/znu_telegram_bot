@@ -106,8 +106,6 @@ async def message_handler(messages: List[Message]):
     name = r.get(messages[0].from_user.id)
     if not name:
         await AlumniName.waiting_for_name.set()
-        for message in messages:
-            await message.delete()
         await messages[0].answer(Answers.NAME_ERROR.value + Answers.NAME_INPUT.value, 'HTML')
         return
     if messages[0].content_type == "text":
@@ -152,8 +150,6 @@ async def useless_message_handler(messages: List[Message]):
 @media_group_handler(only_album=False)
 async def no_name(messages: List[Message]):
     await AlumniName.waiting_for_name.set()
-    for message in messages:
-        await message.delete()
     await messages[0].answer(Answers.NAME_ERROR.value + Answers.NAME_INPUT.value, 'HTML')
 
 
