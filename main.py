@@ -108,7 +108,7 @@ async def message_handler(messages: List[Message]):
         await AlumniName.waiting_for_name.set()
         for message in messages:
             await message.delete()
-        await messages[0].answer(Answers.NAME_INPUT.value, 'HTML')
+        await messages[0].answer(Answers.NAME_ERROR.value + Answers.NAME_INPUT.value, 'HTML')
         return
     if messages[0].content_type == "text":
         await messages[0].answer(Answers.NO_ATTACHMENTS.value, 'HTML')
@@ -154,7 +154,7 @@ async def no_name(messages: List[Message]):
     await AlumniName.waiting_for_name.set()
     for message in messages:
         await message.delete()
-    await messages[0].answer(Answers.NAME_INPUT.value, 'HTML')
+    await messages[0].answer(Answers.NAME_ERROR.value + Answers.NAME_INPUT.value, 'HTML')
 
 
 async def on_startup(db):
