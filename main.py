@@ -2,7 +2,6 @@ import os
 import logging
 
 from typing import List
-from dotenv import load_dotenv
 
 from aiogram.utils.executor import start_webhook
 from aiogram import Bot, Dispatcher, types
@@ -18,19 +17,16 @@ from firebase_admin import credentials
 
 cred = credentials.Certificate("znu-telegram-bot-firebase-adminsdk-rlkxh-0caaa2f0a6.json")
 firebase_admin.initialize_app(cred, {
-    "databaseURL": os.getenv('DATABASE_URL')
+    "databaseURL": os.environ['DATABASE_URL']
 })
 
 
-
-load_dotenv()
-
-API_TOKEN = os.getenv('API_TOKEN')
-CHANNEL_ID = os.getenv('CHANNEL_ID')
+API_TOKEN = os.environ['API_TOKEN']
+CHANNEL_ID = os.environ['CHANNEL_ID']
 
 # webhook settings
-WEBHOOK_HOST = os.getenv('WEBHOOK_HOST')
-WEBHOOK_PATH = f"/webhook/{os.getenv('API_TOKEN')}"
+WEBHOOK_HOST = os.environ['WEBHOOK_HOST']
+WEBHOOK_PATH = f"/webhook/{os.environ['API_TOKEN']}"
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 # webserver settings

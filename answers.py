@@ -1,12 +1,9 @@
 import os
-from dotenv import load_dotenv
 from enum import Enum
-
-load_dotenv()
 
 
 def env(key):
-    return os.getenv(key)
+    return os.environ[key]
 
 
 sub_dates = [f"<b>{it}</b>" for it in env('SUBMISSION_DATES').split('; ')]
