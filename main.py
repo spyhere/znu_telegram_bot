@@ -10,15 +10,6 @@ from aiogram.types import ContentType, Message
 from aiogram_media_group import media_group_handler
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from answers import Answers
-from firebase_admin import db
-
-import firebase_admin
-from firebase_admin import credentials
-
-cred = credentials.Certificate("znu-telegram-bot-firebase-adminsdk-rlkxh-0caaa2f0a6.json")
-firebase_admin.initialize_app(cred, {
-    "databaseURL": os.environ['DATABASE_URL']
-})
 
 
 API_TOKEN = os.environ['API_TOKEN']
@@ -48,9 +39,12 @@ class AlumniName(StatesGroup):
     waiting_name_change = State()
 
 
+db = {}
+
+
 @dp.message_handler(commands=['start'], state="*")
 async def send_welcome(message: Message):
-    user_name = db.reference("/users/" + str(message.from_user.id)).get()
+    user_name = db[message.from_user.id]
     if user_name:
         await message.answer(Answers.NAME_EXISTS.value % user_name + Answers.START.value, 'HTML')
         await AlumniName.name_received.set()
@@ -65,7 +59,7 @@ async def get_name(message: Message):
         await message.answer(Answers.NAME_INPUT.value, 'HTML')
         return
     user_name = message.text
-    db.reference("/users/" + str(message.from_user.id)).set(user_name)
+    db[message.from_user.id] = user_name
     await AlumniName.name_received.set()
     await message.answer(Answers.NAME_RECEIVED.value % user_name, 'HTML')
 
@@ -92,7 +86,7 @@ async def edit_name(message: Message):
         await message.answer(Answers.NAME_EDIT.value, 'HTML')
         return
     user_name = message.text
-    db.reference("/users/" + str(message.from_user.id)).set(user_name)
+    db[message.from_user.id] = user_name
     await AlumniName.name_received.set()
     await message.answer(Answers.NAME_CHANGED.value % user_name, 'HTML')
 
@@ -105,7 +99,7 @@ async def send_help(message: Message):
 @dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT], state=AlumniName.name_received)
 @media_group_handler(only_album=False)
 async def message_handler(messages: List[Message]):
-    name = db.reference("/users/" + str(messages[0].from_user.id)).get()
+    name = db[messages[0].from_user.id]
     if not name:
         await AlumniName.waiting_for_name.set()
         await messages[0].answer(Answers.NAME_ERROR.value + Answers.NAME_INPUT.value, 'HTML')
