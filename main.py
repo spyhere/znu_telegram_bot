@@ -21,8 +21,8 @@ WEBHOOK_PATH = f"/webhook/{os.environ['API_TOKEN']}"
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
 # webserver settings
-WEBAPP_HOST = 'localhost'
-WEBAPP_PORT = 3001
+WEBAPP_HOST = os.environ['WEBAPP_HOST']
+WEBAPP_PORT = os.environ['WEBAPP_PORT']
 
 # Initialize bot and dispatcher
 bot = Bot(API_TOKEN)
