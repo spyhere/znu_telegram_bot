@@ -1,6 +1,5 @@
 import os
 import logging
-import redis
 
 from typing import List
 from dotenv import load_dotenv
@@ -11,8 +10,18 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.types import ContentType, Message
 from aiogram_media_group import media_group_handler
 from aiogram.dispatcher.filters.state import State, StatesGroup
-
 from answers import Answers
+from firebase_admin import db
+
+import firebase_admin
+from firebase_admin import credentials
+
+cred = credentials.Certificate("znu-telegram-bot-firebase-adminsdk-rlkxh-0caaa2f0a6.json")
+firebase_admin.initialize_app(cred, {
+    "databaseURL": os.getenv('DATABASE_URL')
+})
+
+
 
 load_dotenv()
 
@@ -32,9 +41,6 @@ WEBAPP_PORT = 3001
 bot = Bot(API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
-# DB
-r = redis.Redis()
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -48,9 +54,9 @@ class AlumniName(StatesGroup):
 
 @dp.message_handler(commands=['start'], state="*")
 async def send_welcome(message: Message):
-    user_name = r.get(message.from_user.id)
+    user_name = db.reference("/users/" + str(message.from_user.id)).get()
     if user_name:
-        await message.answer(Answers.NAME_EXISTS.value % user_name.decode('utf-8') + Answers.START.value, 'HTML')
+        await message.answer(Answers.NAME_EXISTS.value % user_name + Answers.START.value, 'HTML')
         await AlumniName.name_received.set()
     else:
         await message.answer(Answers.START.value + Answers.NAME_INPUT.value, 'HTML')
@@ -63,7 +69,7 @@ async def get_name(message: Message):
         await message.answer(Answers.NAME_INPUT.value, 'HTML')
         return
     user_name = message.text
-    r.set(message.from_user.id, user_name)
+    db.reference("/users/" + str(message.from_user.id)).set(user_name)
     await AlumniName.name_received.set()
     await message.answer(Answers.NAME_RECEIVED.value % user_name, 'HTML')
 
@@ -90,7 +96,7 @@ async def edit_name(message: Message):
         await message.answer(Answers.NAME_EDIT.value, 'HTML')
         return
     user_name = message.text
-    r.set(message.from_user.id, user_name)
+    db.reference("/users/" + str(message.from_user.id)).set(user_name)
     await AlumniName.name_received.set()
     await message.answer(Answers.NAME_CHANGED.value % user_name, 'HTML')
 
@@ -103,7 +109,7 @@ async def send_help(message: Message):
 @dp.message_handler(content_types=[ContentType.VIDEO, ContentType.TEXT], state=AlumniName.name_received)
 @media_group_handler(only_album=False)
 async def message_handler(messages: List[Message]):
-    name = r.get(messages[0].from_user.id)
+    name = db.reference("/users/" + str(messages[0].from_user.id)).get()
     if not name:
         await AlumniName.waiting_for_name.set()
         await messages[0].answer(Answers.NAME_ERROR.value + Answers.NAME_INPUT.value, 'HTML')
@@ -117,8 +123,7 @@ async def message_handler(messages: List[Message]):
         return
 
     telegram_name = ("@" + messages[0].from_user.username) if messages[0].from_user.username else "Никнейм не указан"
-    user_name = name.decode("utf-8")
-    caption = f"{telegram_name}\n{user_name}\n\n{messages[0].caption}"
+    caption = f"{telegram_name}\n{name}\n\n{messages[0].caption}"
 
     if len(messages) > 1:
         media_group = types.MediaGroup()
@@ -155,8 +160,7 @@ async def no_name(messages: List[Message]):
 
 async def on_startup(db):
     await bot.set_webhook(WEBHOOK_URL)
-    r.ping()
-    logging.info("Redis has been started")
+    logging.info("Bot has been started")
 
 
 async def on_shutdown(db):
